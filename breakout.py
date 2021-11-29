@@ -50,31 +50,32 @@ class Brick():
         if self.active:
             drawRect(self.x, self.y, self.width, self.height,self.colour)
 
-    def checkHit(self, balls):
+    def checkHit(self, ball):
+        if ball.x > self.x-10 and ball.x < self.x+self.width+10 and ball.y > self.y-10 and ball.y< self.y+self.height+10:
+            ball.yspeed *= -1
+            if ball.yspeed <0:
+                ball.y -=10
+            else:
+                ball.y +=10
+            return True
+        return False
+
+    def update(self,balls):
         if self.active:
             for ball in balls:
-                if ball.x > self.x-10 and ball.x < self.x+self.width+10 and ball.y > self.y-10 and ball.y< self.y+self.height+10:
-                    ball.yspeed *= -1
-                    if ball.yspeed <0:
-                        ball.y -=10
-                    else:
-                        ball.y +=10
+                if self.checkHit(ball):
                     self.active = False
+                    return
 
 class BigBrick(Brick):
     def __init__(self,x,y, width, height):
         super().__init__(x,y,width,height,"gold")
         self.power = 2
 
-    def checkHit(self, balls):
+    def update(self, balls):
         if self.active:
             for ball in balls:
-                if ball.x > self.x-10 and ball.x < self.x+self.width+10 and ball.y > self.y-10 and ball.y< self.y+self.height+10:
-                    ball.yspeed *= -1
-                    if ball.yspeed <0:
-                        ball.y -=10
-                    else:
-                        ball.y +=10
+                if self.checkHit(ball):
                     self.power -= 1
                     if self.power == 0:
                         self.active = False
@@ -83,17 +84,12 @@ class BigBrick(Brick):
 
 class MultiballBrick(Brick):
     def __init__(self,x,y, width, height):
-        super().__init__(x,y,width,height,"lightblue")
+        super().__init__(x,y,width,height,"#14b9bc")
 
-    def checkHit(self, balls):
+    def update(self, balls):
         if self.active:
             for ball in balls:
-                if ball.x > self.x-10 and ball.x < self.x+self.width+10 and ball.y > self.y-10 and ball.y< self.y+self.height+10:
-                    ball.yspeed *= -1
-                    if ball.yspeed <0:
-                        ball.y -=10
-                    else:
-                        ball.y +=10
+                if self.checkHit(ball):
                     balls.append(Ball(ball.x,ball.y,ball.xspeed*-1,ball.yspeed-3 ))
                     self.active = False
                     return
@@ -119,6 +115,9 @@ class Ball():
         if self.y > 795:
             lives -= 1
             changeLabel(livesLabel,"Lives: " + str(lives))
+            balls.remove(self)
+            if len(balls)==0:
+                balls.append(Ball(player.x, player.y-20,-5,-7))
         return lives
 
 
@@ -132,9 +131,7 @@ for x in range(2,750, 92):
 for x in range(2,750, 72):
     bricks.append(Brick(x, 150, 70,50,"green"))
 balls.append(Ball(100,300,5,7))
-print(bricks[15].x)
-removed = bricks.pop(14)
-bricks.append(MultiballBrick(removed.x, removed.y, removed.width, removed.height))
+bricks.append(MultiballBrick(380,210,50,50))
 player = Bat(400,100)
 
 
@@ -149,7 +146,7 @@ while lives > 0:
         b.draw()
     for br in bricks:
         br.draw()
-        br.checkHit(balls)
+        br.update(balls)
     player.move()
     player.checkHit(balls)
     updateDisplay()
