@@ -5,38 +5,6 @@ setBackgroundColour("darkblue")
 
 setAutoUpdate(False)
 
-class Bat():
-    def __init__(self,x, width):
-        self.colour = "white"
-        self.x = x
-        self.width = width
-        self.height = 20
-        self.y = 750
-
-    def draw(self):
-        drawRect(self.x, self.y, self.width, self.height, self.colour)
-
-    def checkHit(self,balls):
-        for ball in balls:
-            if ball.x > self.x-10 and ball.x < self.x+self.width+10 and ball.y > self.y-10 and ball.y< self.y+self.height+10:
-                    ball.yspeed *= -1
-                    if ball.yspeed <0:
-                        ball.y -=10
-                    else:
-                        ball.y +=10
-                    if ball.x < self.x+20:
-                        ball.xspeed -= 2
-                    if ball.x > self.x+self.width-20:
-                        ball.xspeed += 2
-
-    def move(self):
-        if keyPressed("right"):
-            self.x += 8
-        if keyPressed("left"):
-            self.x -= 8
-
-
-
 class Brick():
     def __init__(self,x,y, width, height, colour):
         self.x = x
@@ -47,8 +15,7 @@ class Brick():
         self.active = True
 
     def draw(self):
-        if self.active:
-            drawRect(self.x, self.y, self.width, self.height,self.colour)
+        drawRect(self.x, self.y, self.width, self.height,self.colour)
 
     def checkHit(self, ball):
         if ball.x > self.x-10 and ball.x < self.x+self.width+10 and ball.y > self.y-10 and ball.y< self.y+self.height+10:
@@ -62,6 +29,7 @@ class Brick():
 
     def update(self,balls):
         if self.active:
+            self.draw()
             for ball in balls:
                 if self.checkHit(ball):
                     self.active = False
@@ -74,6 +42,7 @@ class BigBrick(Brick):
 
     def update(self, balls):
         if self.active:
+            self.draw()
             for ball in balls:
                 if self.checkHit(ball):
                     self.power -= 1
@@ -88,6 +57,7 @@ class MultiballBrick(Brick):
 
     def update(self, balls):
         if self.active:
+            self.draw()
             for ball in balls:
                 if self.checkHit(ball):
                     balls.append(Ball(ball.x,ball.y,ball.xspeed*-1,ball.yspeed-3 ))
@@ -121,6 +91,24 @@ class Ball():
         return lives
 
 
+class Bat(Brick):
+    def __init__(self):
+        super().__init__(450,750,100,20,"white")
+
+    def update(self):
+        self.move()
+        self.draw()
+        for ball in balls:
+            self.checkHit(ball)
+                
+
+    def move(self):
+        if keyPressed("right"):
+            self.x += 8
+        if keyPressed("left"):
+            self.x -= 8
+
+
 
 
 bricks = []
@@ -132,7 +120,7 @@ for x in range(2,750, 72):
     bricks.append(Brick(x, 150, 70,50,"green"))
 balls.append(Ball(100,300,5,7))
 bricks.append(MultiballBrick(380,210,50,50))
-player = Bat(400,100)
+player = Bat()
 
 
 lives = 3
@@ -145,10 +133,8 @@ while lives > 0:
         lives = b.move(lives)
         b.draw()
     for br in bricks:
-        br.draw()
         br.update(balls)
-    player.move()
-    player.checkHit(balls)
+    player.update()
     updateDisplay()
     tick(60)
 
