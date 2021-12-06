@@ -51,19 +51,6 @@ class BigBrick(Brick):
                     else:
                         self.colour = "orange"
 
-class MultiballBrick(Brick):
-    def __init__(self,x,y, width, height):
-        super().__init__(x,y,width,height,"#14b9bc")
-
-    def update(self, balls):
-        if self.active:
-            self.draw()
-            for ball in balls:
-                if self.checkHit(ball):
-                    balls.append(Ball(ball.x,ball.y,ball.xspeed*-1,ball.yspeed-3 ))
-                    self.active = False
-                    return
-
 class Ball():
     def __init__(self,x,y, xspeed, yspeed):
         self.x = x
@@ -119,7 +106,6 @@ for x in range(2,750, 92):
 for x in range(2,750, 72):
     bricks.append(Brick(x, 150, 70,50,"green"))
 balls.append(Ball(100,300,5,7))
-bricks.append(MultiballBrick(380,210,50,50))
 player = Bat()
 
 
